@@ -48,6 +48,13 @@ exports.executeAsync = function(config, callBack){
 exports.execute = function(config){
 	var cols = config.cols,
 		data = config.rows;
+    
+    //---added by Steven Chen to fix the hyperlink bug
+    sheetHyperlinksBack = '</x:hyperlinks>';
+    hyperlinksCount = 0;
+    sheetRelationshipsBack = '</Relationships>';
+    //----------------------
+
 	
 	var xlsx = new JSZip(templateXLSX, { base64: true, checkCRC32: false }),
 		sheet = xlsx.file("xl/worksheets/sheet.xml"),
