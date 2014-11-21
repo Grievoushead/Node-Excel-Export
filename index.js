@@ -48,14 +48,13 @@ exports.executeAsync = function(config, callBack){
 exports.execute = function(config){
 	var cols = config.cols,
 		data = config.rows;
-    
+
     //---added by Steven Chen to fix the hyperlink bug
     sheetHyperlinksBack = '</x:hyperlinks>';
     hyperlinksCount = 0;
     sheetRelationshipsBack = '</Relationships>';
     //----------------------
 
-	
 	var xlsx = new JSZip(templateXLSX, { base64: true, checkCRC32: false }),
 		sheet = xlsx.file("xl/worksheets/sheet.xml"),
         sheet_rels = xlsx.file("xl/worksheets/_rels/sheet.xml.rels"),
@@ -64,8 +63,6 @@ exports.execute = function(config){
 		row ="";
 	
 	shareStrings = new Array();
-        sheetHyperlinksBack = '</x:hyperlinks>';
-        sheetRelationshipsBack = '</Relationships>';
 	//first row for column caption
 	row = ['<x:row r="1" spans="1:', cols.length , '">'].join('');
   var k;
@@ -172,9 +169,19 @@ var addHyperlinkCol = function(cellRef, value){
     if (value===null)
         return "";
     if (typeof value ==='object'){
-        var href = value.href;
+        //var href = value.href;
+        //modified by Steven Chen to fix the issue of the hyperlink with spaces
+        var hrefstr=value.href;
+        var n=hrefstr.indexOf("://")+3;
+        var components=hrefstr.substring(n).split('/');
+        for(var i=0;i<components.length;i++){
+            components[i]=encodeURIComponent(components[i]).replace(/%23/g,"#").replace(/%3A/g,":");
+        }
+        var href=hrefstr.substring(0,n)+components.join('/');
+        //---------------------------------------------------------------------
+
         value.text = value.text.replace(/&/g, "&amp;").replace(/'/g, "&apos;").replace(/>/g, "&gt;").replace(/</g, "&lt;");
-	href = href.replace(/&/g, "&amp;").replace(/'/g, "&apos;").replace(/>/g, "&gt;").replace(/</g, "&lt;");
+
         // Add to sheet hyperlinks section and Relationships file section
         //'<x:hyperlinks>' +
         //'<x:hyperlink ref="A1" r:id="rId1"/>' +
